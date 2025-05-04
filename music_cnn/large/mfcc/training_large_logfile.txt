@@ -1,0 +1,36 @@
+===== Evaluation at 2025-05-04 15:45:08 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.001
+epochs: 5
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.001
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 0
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.8502
+human: 0.7352
+
+Precision, Recall, F1:
+ai → Precision: 0.8502, Recall: 0.8502, F1: 0.8502
+human → Precision: 0.7352, Recall: 0.7352, F1: 0.7352
+
+False Positive Rate:
+ai: 0.2648
+human: 0.1498
+
+Overall Accuracy: 0.8087
+Average Inference Time per Sample: 0.025813 seconds
+========================================
+
