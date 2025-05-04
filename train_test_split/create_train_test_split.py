@@ -36,20 +36,20 @@ def split_data(input_dirs, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
         all_test_files.extend([os.path.join(input_dir, file) for file in test_files])
 
     # Write the file names to text files
-    with open('train_files.txt', 'w') as f:
+    with open('train_files_large.txt', 'w') as f:
         for file in all_train_files:
             f.write(f"{file}\n")
 
-    with open('val_files.txt', 'w') as f:
+    with open('val_files_large.txt', 'w') as f:
         for file in all_val_files:
             f.write(f"{file}\n")
 
-    with open('test_files.txt', 'w') as f:
+    with open('test_files_large.txt', 'w') as f:
         for file in all_test_files:
             f.write(f"{file}\n")
 
     print("Data split completed. Files saved as train_files.txt, val_files.txt, and test_files.txt")
 
 # Example usage
-input_dirs = ['/data/sg2121/fypdataset/dataset/normal_data/human', '/data/sg2121/fypdataset/dataset/normal_data/ai/segments']  # Directories to process
+input_dirs = ['/data/sg2121/fypdataset/dataset_large/normal_data/human', '/data/sg2121/fypdataset/dataset_large/normal_data/ai_segments']  # Directories to process
 split_data(input_dirs)
