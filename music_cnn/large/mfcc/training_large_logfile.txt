@@ -394,3 +394,23 @@ Overall Accuracy: 0.8850
 Average Inference Time per Sample: 0.020178 seconds
 ========================================
 
+===== Evaluation at 2025-05-12 14:45:08 =====
+
+No hyperparameters provided.
+
+Accuracy per class:
+ai: 0.9458
+human: 0.8351
+
+Precision, Recall, F1:
+ai → Precision: 0.9102, Recall: 0.9458, F1: 0.9277
+human → Precision: 0.8971, Recall: 0.8351, F1: 0.8650
+
+False Positive Rate:
+ai: 0.1649
+human: 0.0542
+
+Overall Accuracy: 0.9058
+Average Inference Time per Sample: 0.015920 seconds
+========================================
+
