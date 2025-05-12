@@ -34,3 +34,363 @@ Overall Accuracy: 0.7545
 Average Inference Time per Sample: 0.011207 seconds
 ========================================
 
+===== Evaluation at 2025-05-05 02:28:37 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.001
+epochs: 20
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.001
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-06
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.9213
+human: 0.8032
+
+Precision, Recall, F1:
+ai → Precision: 0.8923, Recall: 0.9213, F1: 0.9066
+human → Precision: 0.8522, Recall: 0.8032, F1: 0.8270
+
+False Positive Rate:
+ai: 0.1968
+human: 0.0787
+
+Overall Accuracy: 0.8787
+Average Inference Time per Sample: 0.034595 seconds
+========================================
+
+===== Evaluation at 2025-05-05 04:14:17 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.0001
+epochs: 10
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.0001
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-07
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.8615
+human: 0.7948
+
+Precision, Recall, F1:
+ai → Precision: 0.8814, Recall: 0.8615, F1: 0.8713
+human → Precision: 0.7642, Recall: 0.7948, F1: 0.7792
+
+False Positive Rate:
+ai: 0.2052
+human: 0.1385
+
+Overall Accuracy: 0.8374
+Average Inference Time per Sample: 0.026306 seconds
+========================================
+
+===== Evaluation at 2025-05-05 04:58:44 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.0005
+epochs: 5
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.0005
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-06
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.9006
+human: 0.7807
+
+Precision, Recall, F1:
+ai → Precision: 0.8790, Recall: 0.9006, F1: 0.8897
+human → Precision: 0.8160, Recall: 0.7807, F1: 0.7980
+
+False Positive Rate:
+ai: 0.2193
+human: 0.0994
+
+Overall Accuracy: 0.8573
+Average Inference Time per Sample: 0.025643 seconds
+========================================
+
+===== Evaluation at 2025-05-05 05:42:55 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.0001
+epochs: 5
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.0001
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-06
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.8921
+human: 0.7690
+
+Precision, Recall, F1:
+ai → Precision: 0.8724, Recall: 0.8921, F1: 0.8821
+human → Precision: 0.8010, Recall: 0.7690, F1: 0.7847
+
+False Positive Rate:
+ai: 0.2310
+human: 0.1079
+
+Overall Accuracy: 0.8476
+Average Inference Time per Sample: 0.025963 seconds
+========================================
+
+===== Evaluation at 2025-05-05 06:27:16 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.001
+epochs: 5
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.001
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-08
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.8935
+human: 0.8057
+
+Precision, Recall, F1:
+ai → Precision: 0.8906, Recall: 0.8935, F1: 0.8920
+human → Precision: 0.8104, Recall: 0.8057, F1: 0.8080
+
+False Positive Rate:
+ai: 0.1943
+human: 0.1065
+
+Overall Accuracy: 0.8618
+Average Inference Time per Sample: 0.025449 seconds
+========================================
+
+===== Evaluation at 2025-05-05 08:12:49 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.001
+epochs: 10
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.001
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-06
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.8930
+human: 0.8274
+
+Precision, Recall, F1:
+ai → Precision: 0.9015, Recall: 0.8930, F1: 0.8973
+human → Precision: 0.8138, Recall: 0.8274, F1: 0.8205
+
+False Positive Rate:
+ai: 0.1726
+human: 0.1070
+
+Overall Accuracy: 0.8693
+Average Inference Time per Sample: 0.035758 seconds
+========================================
+
+===== Evaluation at 2025-05-05 12:12:16 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.001
+epochs: 20
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.001
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-07
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.8690
+human: 0.8607
+
+Precision, Recall, F1:
+ai → Precision: 0.9170, Recall: 0.8690, F1: 0.8923
+human → Precision: 0.7878, Recall: 0.8607, F1: 0.8226
+
+False Positive Rate:
+ai: 0.1393
+human: 0.1310
+
+Overall Accuracy: 0.8660
+Average Inference Time per Sample: 0.039354 seconds
+========================================
+
+===== Evaluation at 2025-05-05 13:19:37 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.0001
+epochs: 5
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.0001
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-07
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.9270
+human: 0.7406
+
+Precision, Recall, F1:
+ai → Precision: 0.8635, Recall: 0.9270, F1: 0.8941
+human → Precision: 0.8514, Recall: 0.7406, F1: 0.7921
+
+False Positive Rate:
+ai: 0.2594
+human: 0.0730
+
+Overall Accuracy: 0.8597
+Average Inference Time per Sample: 0.041585 seconds
+========================================
+
+===== Evaluation at 2025-05-05 14:26:53 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.0001
+epochs: 5
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.0001
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-08
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.8902
+human: 0.7890
+
+Precision, Recall, F1:
+ai → Precision: 0.8819, Recall: 0.8902, F1: 0.8860
+human → Precision: 0.8024, Recall: 0.7890, F1: 0.7956
+
+False Positive Rate:
+ai: 0.2110
+human: 0.1098
+
+Overall Accuracy: 0.8537
+Average Inference Time per Sample: 0.039383 seconds
+========================================
+
+===== Evaluation at 2025-05-05 16:39:16 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.0005
+epochs: 10
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.0005
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-08
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.8737
+human: 0.8040
+
+Precision, Recall, F1:
+ai → Precision: 0.8875, Recall: 0.8737, F1: 0.8806
+human → Precision: 0.7825, Recall: 0.8040, F1: 0.7931
+
+False Positive Rate:
+ai: 0.1960
+human: 0.1263
+
+Overall Accuracy: 0.8485
+Average Inference Time per Sample: 0.039176 seconds
+========================================
+
