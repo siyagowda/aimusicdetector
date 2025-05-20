@@ -51,5 +51,5 @@ def split_data(input_dirs, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
     print("Data split completed. Files saved as train_files.txt, val_files.txt, and test_files.txt")
 
 # Example usage
-input_dirs = ['/data/sg2121/fypdataset/dataset_large/normal_data/human', '/data/sg2121/fypdataset/dataset_large/normal_data/ai_segments']  # Directories to process
+input_dirs = ['/vol/bitbucket/sg2121/fypdataset/dataset_large2/normal_data/human', '/vol/bitbucket/sg2121/fypdataset/dataset_large2/normal_data/ai_segments']  # Directories to process
 split_data(input_dirs)
