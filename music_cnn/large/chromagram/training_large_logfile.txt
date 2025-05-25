@@ -862,3 +862,39 @@ Overall Accuracy: 0.8791
 Average Inference Time per Sample: 0.015703 seconds
 ========================================
 
+===== Evaluation at 2025-05-24 19:35:31 =====
+
+Hyperparameters:
+batch_size: 32
+learning_rate: 0.001
+epochs: 5
+optimizer: SGD (
+Parameter Group 0
+    dampening: 0
+    differentiable: False
+    foreach: None
+    fused: None
+    lr: 0.001
+    maximize: False
+    momentum: 0.9
+    nesterov: False
+    weight_decay: 1e-06
+)
+model: ResNet
+
+Accuracy per class:
+ai: 0.8333
+human: 0.8797
+
+Precision, Recall, F1:
+ai → Precision: 0.7968, Recall: 0.8333, F1: 0.8146
+human → Precision: 0.9031, Recall: 0.8797, F1: 0.8912
+
+False Positive Rate:
+ai: 0.1203
+human: 0.1667
+
+Overall Accuracy: 0.8629
+Average Inference Time per Sample: 0.015462 seconds
+========================================
+
