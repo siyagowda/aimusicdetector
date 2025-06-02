@@ -138,6 +138,7 @@ venv.bak/
 /myenv/
 /.myenv/
 /venvMain/
+/venvNew/
 
 # Spyder project settings
 .spyderproject
@@ -178,3 +179,5 @@ features/
 /features
 /features/
 .jpg
+temp_chunks/
+*.mp3

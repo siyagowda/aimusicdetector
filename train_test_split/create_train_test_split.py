@@ -6,12 +6,12 @@ def split_data(input_dirs, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
     if train_ratio + val_ratio + test_ratio != 1:
         raise ValueError("Train, validation, and test ratios must sum to 1.")
     
-    # Initialize lists to hold file names
+    # Initialise lists to hold file names
     all_train_files = []
     all_val_files = []
     all_test_files = []
     
-    # Loop through each input directory (human, ai/segments)
+    # Loop through each input directory
     for input_dir in input_dirs:
         # Get all the files in the current directory
         all_files = os.listdir(input_dir)
@@ -36,20 +36,23 @@ def split_data(input_dirs, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
         all_test_files.extend([os.path.join(input_dir, file) for file in test_files])
 
     # Write the file names to text files
-    with open('train_files_large.txt', 'w') as f:
+    with open('train_files_w_aug.txt', 'w') as f:
         for file in all_train_files:
             f.write(f"{file}\n")
 
-    with open('val_files_large.txt', 'w') as f:
+    with open('val_files_w_aug.txt', 'w') as f:
         for file in all_val_files:
             f.write(f"{file}\n")
 
-    with open('test_files_large.txt', 'w') as f:
+    with open('test_files_w_aug.txt', 'w') as f:
         for file in all_test_files:
             f.write(f"{file}\n")
 
     print("Data split completed. Files saved as train_files.txt, val_files.txt, and test_files.txt")
 
-# Example usage
-input_dirs = ['/vol/bitbucket/sg2121/fypdataset/dataset_large2/normal_data/human', '/vol/bitbucket/sg2121/fypdataset/dataset_large2/normal_data/ai_segments']  # Directories to process
+
+input_dirs = [
+    '/vol/bitbucket/sg2121/fypdataset/dataset/normal_data/ai', 
+    '/vol/bitbucket/sg2121/fypdataset/dataset/normal_data/human'
+    ]  # Directories to process
 split_data(input_dirs)
