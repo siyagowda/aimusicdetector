@@ -8,6 +8,8 @@ import soundfile as sf
 import matplotlib.pyplot as plt
 from pathlib import Path
 import numpy as np
+import torchaudio
+import torchaudio.transforms as T
 
 def split_mp3_into_chunks(file_path, chunk_length_sec=30):
     audio = AudioSegment.from_mp3(file_path)
@@ -144,86 +146,6 @@ def extract_features(file_path, sr=22050, n_mfcc=13, output_dir="features"):
         plt.close()
         
     return features
-
-def get_mfcc_pt(input_path):
-    output_path = "/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features/MFCC_tensor"
-    target_sr = 22050
-    n_mfcc = 40                        # Number of MFCCs to keep
-    target_width = 256                # Time dimension (pad or crop to this width)
-
-    resample = T.Resample(orig_freq=44100, new_freq=target_sr)
-    mfcc_transform = T.MFCC(
-        sample_rate=target_sr,
-        n_mfcc=n_mfcc,
-        melkwargs={
-            "n_fft": 1024,
-            "hop_length": 512,
-            "n_mels": 128,
-            "center": True,
-            "power": 2.0,
-        },
-    )
-
-    waveform, sr = torchaudio.load(input_path)
-
-    # Resample if needed
-    if sr != target_sr:
-        waveform = resample(waveform)
-
-    # Convert to mono
-    if waveform.shape[0] > 1:
-        waveform = torch.mean(waveform, dim=0, keepdim=True)
-
-    # Compute MFCC
-    mfcc = mfcc_transform(waveform)  # shape: (1, n_mfcc, T)
-
-    # Pad or crop to target width
-    _, _, time_dim = mfcc.shape
-    if time_dim < target_width:
-        pad_amt = target_width - time_dim
-        mfcc = torch.nn.functional.pad(mfcc, (0, pad_amt))
-    else:
-        start = (time_dim - target_width) // 2
-        mfcc = mfcc[:, :, start:start+target_width]
-
-    # Save as .pt file
-    torch.save(mfcc, output_path)
-
-def get_melspec_pt(input_path):
-    output_path = "/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features/Mel_Spectrogram_tensor"
-    target_sr = 22050                     # Sample rate for resampling
-    n_mels = 128                          # Mel bands
-    target_width = 256                   # Time dimension 
-
-    resample = T.Resample(orig_freq=44100, new_freq=target_sr)
-    mel_spec = T.MelSpectrogram(sample_rate=target_sr, n_fft=1024, hop_length=512, n_mels=n_mels)
-    to_db = T.AmplitudeToDB(top_db=80)
-
-    waveform, sr = torchaudio.load(input_path)
-
-    # Resample if needed
-    if sr != target_sr:
-        waveform = resample(waveform)
-
-    # Convert to mono
-    if waveform.shape[0] > 1:
-        waveform = torch.mean(waveform, dim=0, keepdim=True)
-
-    # Compute mel spectrogram
-    mel = mel_spec(waveform)
-    mel_db = to_db(mel)  # shape: (1, 128, T)
-
-    # Pad or crop to target width
-    _, _, time_dim = mel_db.shape
-    if time_dim < target_width:
-        pad_amt = target_width - time_dim
-        mel_db = torch.nn.functional.pad(mel_db, (0, pad_amt))
-    else:
-        start = (time_dim - target_width) // 2
-        mel_db = mel_db[:, :, start:start+target_width]
-
-    # Save as .pt file
-    torch.save(mel_db, output_path)
 
 def extract_mfcc_and_melspec(input_path):
     target_sr = 22050
