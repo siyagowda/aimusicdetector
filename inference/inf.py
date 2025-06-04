@@ -124,6 +124,59 @@ def extract_mel_spectrogram(file_path, output_dir="features/Mel_Spectrogram", sr
     print(f"Saved Mel Spectrogram: {output_path}")
     plt.close()
 
+def extract_features(file_path, sr=22050, n_mfcc=13, output_dir="features"):
+    # Load the audio file
+    y, sr = librosa.load(file_path, sr=sr)
+    
+    # 1. Mel Spectrogram
+    mel_spectrogram = librosa.feature.melspectrogram(y=y, sr=sr)
+    mel_spectrogram_db = librosa.power_to_db(mel_spectrogram, ref=np.max)
+
+    # 2. MFCC (Mel-Frequency Cepstral
+    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc)
+
+    # 3. CQT (Constant-Q Transform)
+    cqt = librosa.feature.chroma_cqt(y=y, sr=sr)
+
+    # 5. Chromagram
+    chroma = librosa.feature.chroma_stft(y=y, sr=sr)
+
+    # Extract the base name of the mp3 file 
+    base_filename = os.path.basename(file_path).replace('.mp3', '')
+    
+    # Create output directory if it doesn't exist
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    # List of features and their names
+    features = {
+        'Mel Spectrogram': mel_spectrogram_db,
+        'MFCC': mfcc,
+        'CQT': cqt,
+        'Chromagram': chroma,
+    }
+    
+    # Plot and save each feature as an image
+    for feature_name, feature_data in features.items():
+
+       # Create a folder for each feature type and use file name and feature name
+        feature_folder = os.path.join(output_dir, f"{feature_name.replace(' ', '_')}")
+        if not os.path.exists(feature_folder):
+            os.makedirs(feature_folder)
+            
+        plt.figure(figsize=(10, 4))
+        librosa.display.specshow(feature_data, x_axis='time', sr=sr)
+        plt.colorbar(format='%+2.0f dB')
+        plt.title(f"{feature_name}")
+        plt.tight_layout()
+
+        # Save the image as a .png file in the corresponding feature folder
+        output_path = os.path.join(feature_folder, f"{base_filename}-{feature_name.replace(' ', '_')}.png")
+        plt.savefig(output_path)
+        #print(f"Saved {feature_name} as {output_path}")
+        plt.close()
+        
+    return features
 
 def preprocess(path):
     split_mp3_into_chunks(path)
@@ -142,14 +195,14 @@ def get_model():
     # Modify the last layer of the model
     num_classes = 2 # number of classes in dataset
     model.fc = torch.nn.Linear(model.fc.in_features, num_classes)
-    model.load_state_dict(torch.load("/vol/bitbucket/sg2121/fyp/aimusicdetector/music_cnn/large/mel-spec/best_model.pt"))
+    model.load_state_dict(torch.load("/vol/bitbucket/sg2121/fyp/aimusicdetector/music_cnn/large/mel-spec/cur_model.pt"))
     return model
 
 def predict():
     model = get_model()
     model.eval()
 
-    mel_dir = Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/features/Mel_Spectrogram")
+    mel_dir = Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features/Mel_Spectrogram")
     mel_paths = list(mel_dir.glob("*.png"))  # Or "**/*.png" for recursive search
 
       
@@ -172,13 +225,13 @@ def predict():
             prob = F.softmax(output, dim=1)  # Get probabilities
             predictions.append(prob.cpu())
 
-
+    print(len(predictions))
     # Average probabilities across all chunks
     avg_prob = torch.mean(torch.cat(predictions, dim=0), dim=0)
     predicted_label = torch.argmax(avg_prob).item()
     confidence = avg_prob[predicted_label].item()
 
-    label_name = "AI-generated" if predicted_label == 1 else "Human-generated"
+    label_name = "AI-generated" if predicted_label == 0 else "Human-generated"
     print(f"\nPrediction: {label_name} (Confidence: {confidence:.2f})")
 
     return label_name, confidence
@@ -196,6 +249,9 @@ def clear_directory(directory):
                 print(f"Failed to delete {item}: {e}")
 
 if __name__ == "__main__":
+    clear_directory(Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features/Mel_Spectrogram"))
+    clear_directory(Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/temp_chunks"))
+
     start_time = time.time()
 
     n = len(sys.argv)
@@ -222,5 +278,5 @@ if __name__ == "__main__":
     total = elapsed1 + elapsed2
     print(f"\n✅ Total inference time: {total:.2f} seconds.")
 
-    clear_directory(Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/features/Mel_Spectrogram"))
-    clear_directory(Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/temp_chunks"))
+    clear_directory(Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features/Mel_Spectrogram"))
+    clear_directory(Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/temp_chunks"))
