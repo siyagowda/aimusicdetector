@@ -33,7 +33,7 @@ def split_mp3_into_chunks(file_path, chunk_length_sec=30):
         for i in range(0, len(audio), chunk_length_ms)
     ]
     
-    # Optional: save chunks to disk
+    # Save chunks to disk
     output_dir = f"temp_chunks"
     os.makedirs(output_dir, exist_ok=True)
     
@@ -76,12 +76,12 @@ def transcribe_lyrics(path):
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load Whisper model (auto uses GPU if available)
+    # Load Whisper model
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = whisper.load_model("base", device=device)
 
     # Loop through audio files
-    for audio_path in input_dir.glob("*.*"):  # supports .wav, .mp3, etc.
+    for audio_path in input_dir.glob("*.*"): 
         output_path = output_dir / f"{audio_path.stem}_lyrics.txt"
 
         print(f"Transcribing: {audio_path.name}")
@@ -138,7 +138,7 @@ def extract_features(file_path, sr=22050, n_mfcc=13, output_dir="features"):
     # 3. CQT (Constant-Q Transform)
     cqt = librosa.feature.chroma_cqt(y=y, sr=sr)
 
-    # 5. Chromagram
+    # 4. Chromagram
     chroma = librosa.feature.chroma_stft(y=y, sr=sr)
 
     # Extract the base name of the mp3 file 
@@ -150,7 +150,7 @@ def extract_features(file_path, sr=22050, n_mfcc=13, output_dir="features"):
     
     # List of features and their names
     features = {
-        'Mel Spectrogram': mel_spectrogram_db,
+        #'Mel Spectrogram': mel_spectrogram_db,
         'MFCC': mfcc,
         'CQT': cqt,
         'Chromagram': chroma,
@@ -173,7 +173,7 @@ def extract_features(file_path, sr=22050, n_mfcc=13, output_dir="features"):
         # Save the image as a .png file in the corresponding feature folder
         output_path = os.path.join(feature_folder, f"{base_filename}-{feature_name.replace(' ', '_')}.png")
         plt.savefig(output_path)
-        #print(f"Saved {feature_name} as {output_path}")
+        print(f"Saved {feature_name} as {output_path}")
         plt.close()
         
     return features
@@ -185,6 +185,7 @@ def preprocess(path):
     for audio_file in chunk_path.glob("*.mp3"):
         resample_and_normalize(str(audio_file), str(audio_file), target_sample_rate=24000)
         extract_mel_spectrogram(audio_file)
+        extract_features(audio_file)
 
     #transcribe_lyrics(chunk_path)
 
@@ -196,6 +197,7 @@ def get_model():
     num_classes = 2 # number of classes in dataset
     model.fc = torch.nn.Linear(model.fc.in_features, num_classes)
     model.load_state_dict(torch.load("/vol/bitbucket/sg2121/fyp/aimusicdetector/music_cnn/large/mel-spec/cur_model.pt"))
+    model.load_state_dict(torch.load("/vol/bitbucket/sg2121/fyp/aimusicdetector/music_cnn/large/mfcc/cur_model.pt"))
     return model
 
 def predict():
@@ -203,9 +205,11 @@ def predict():
     model.eval()
 
     mel_dir = Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features/Mel_Spectrogram")
-    mel_paths = list(mel_dir.glob("*.png"))  # Or "**/*.png" for recursive search
+    mel_paths = list(mel_dir.glob("*.png"))  
 
-      
+    mfcc_dir = Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features/MFCC")
+    mfcc_paths = list(mfcc_dir.glob("*.png"))  
+
     transform = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
@@ -215,9 +219,21 @@ def predict():
 
     predictions = []
 
+    '''
     for mel_path in mel_paths:
         # Load image and apply transform
         image = Image.open(mel_path).convert("RGB")
+        image_tensor = transform(image).unsqueeze(0)  # Add batch dimension
+
+        with torch.no_grad():
+            output = model(image_tensor)
+            prob = F.softmax(output, dim=1)  # Get probabilities
+            predictions.append(prob.cpu())'''
+
+    predictions = []
+    for mfcc_path in mfcc_paths:
+        # Load image and apply transform
+        image = Image.open(mfcc_path).convert("RGB")
         image_tensor = transform(image).unsqueeze(0)  # Add batch dimension
 
         with torch.no_grad():
