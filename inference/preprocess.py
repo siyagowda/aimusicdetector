@@ -12,6 +12,7 @@ import torchaudio
 import torchaudio.transforms as T
 
 def split_mp3_into_chunks(file_path, chunk_length_sec=30):
+
     audio = AudioSegment.from_mp3(file_path)
     chunk_length_ms = chunk_length_sec * 1000
     total_length = len(audio)
@@ -107,9 +108,6 @@ def extract_features(file_path, sr=22050, n_mfcc=13, output_dir="features"):
     # 3. CQT (Constant-Q Transform)
     cqt = librosa.feature.chroma_cqt(y=y, sr=sr)
 
-    # 4. Chromagram
-    chroma = librosa.feature.chroma_stft(y=y, sr=sr)
-
     # Extract the base name of the mp3 file 
     base_filename = os.path.basename(file_path).replace('.mp3', '')
     
@@ -121,8 +119,7 @@ def extract_features(file_path, sr=22050, n_mfcc=13, output_dir="features"):
     features = {
         'Mel Spectrogram': mel_spectrogram_db,
         'MFCC': mfcc,
-        'CQT': cqt,
-        'Chromagram': chroma,
+        'CQT': cqt
     }
     
     # Plot and save each feature as an image
@@ -142,35 +139,34 @@ def extract_features(file_path, sr=22050, n_mfcc=13, output_dir="features"):
         # Save the image as a .png file in the corresponding feature folder
         output_path = os.path.join(feature_folder, f"{base_filename}-{feature_name.replace(' ', '_')}.png")
         plt.savefig(output_path)
-        print(f"Saved {feature_name} as {output_path}")
+        #print(f"Saved {feature_name} as {output_path}")
         plt.close()
         
     return features
 
-def extract_mfcc_and_melspec(input_path):
-    target_sr = 22050
-    target_width = 256
+TARGET_SR = 22050
+TARGET_WIDTH = 256
 
-    # Output directories
-    output_dir = Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features")
-    mfcc_out_path = output_dir / f"{Path(input_path).stem}_MFCC_tensor.pt"
-    mel_out_path = output_dir / f"{Path(input_path).stem}_Mel_Spectrogram_tensor.pt"
-
-    # Load audio
+def preprocess_audio(input_path):
     waveform, sr = torchaudio.load(input_path)
 
     # Resample if needed
-    if sr != target_sr:
-        resample = T.Resample(orig_freq=sr, new_freq=target_sr)
+    if sr != TARGET_SR:
+        resample = T.Resample(orig_freq=sr, new_freq=TARGET_SR)
         waveform = resample(waveform)
 
     # Convert to mono
     if waveform.shape[0] > 1:
         waveform = torch.mean(waveform, dim=0, keepdim=True)
 
-    # ----- MFCC -----
+    return waveform
+
+def extract_mfcc(input_path):
+    waveform = preprocess_audio(input_path)
+    FEATURE_DIR = Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features/MFCC_tensor")
+
     mfcc_transform = T.MFCC(
-        sample_rate=target_sr,
+        sample_rate=TARGET_SR,
         n_mfcc=40,
         melkwargs={
             "n_fft": 1024,
@@ -182,37 +178,80 @@ def extract_mfcc_and_melspec(input_path):
     )
     mfcc = mfcc_transform(waveform)
     _, _, t = mfcc.shape
-    if t < target_width:
-        mfcc = torch.nn.functional.pad(mfcc, (0, target_width - t))
+    if t < TARGET_WIDTH:
+        mfcc = torch.nn.functional.pad(mfcc, (0, TARGET_WIDTH - t))
     else:
-        start = (t - target_width) // 2
-        mfcc = mfcc[:, :, start:start + target_width]
-    torch.save(mfcc, mfcc_out_path)
+        start = (t - TARGET_WIDTH) // 2
+        mfcc = mfcc[:, :, start:start + TARGET_WIDTH]
 
-    # ----- Mel Spectrogram -----
-    mel_transform = T.MelSpectrogram(sample_rate=target_sr, n_fft=1024, hop_length=512, n_mels=128)
+    out_path = FEATURE_DIR / f"{Path(input_path).stem}_MFCC_tensor.pt"
+    torch.save(mfcc, out_path)
+    return out_path
+
+def extract_mel_spectrogram(input_path):
+    waveform = preprocess_audio(input_path)
+    FEATURE_DIR = Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features/Mel_Spectrogram_tensor")
+
+    mel_transform = T.MelSpectrogram(
+        sample_rate=TARGET_SR,
+        n_fft=1024,
+        hop_length=512,
+        n_mels=128
+    )
     to_db = T.AmplitudeToDB(top_db=80)
     mel = to_db(mel_transform(waveform))
+
     _, _, t = mel.shape
-    if t < target_width:
-        mel = torch.nn.functional.pad(mel, (0, target_width - t))
+    if t < TARGET_WIDTH:
+        mel = torch.nn.functional.pad(mel, (0, TARGET_WIDTH - t))
     else:
-        start = (t - target_width) // 2
-        mel = mel[:, :, start:start + target_width]
-    torch.save(mel, mel_out_path)
+        start = (t - TARGET_WIDTH) // 2
+        mel = mel[:, :, start:start + TARGET_WIDTH]
 
-    print(f"Saved MFCC to {mfcc_out_path}")
-    print(f"Saved Mel Spectrogram to {mel_out_path}")
+    out_path = FEATURE_DIR / f"{Path(input_path).stem}_Mel_Spectrogram_tensor.pt"
+    torch.save(mel, out_path)
+    return out_path
 
 
-def preprocess(path):
+
+def preprocess(path, fast=False, progress_callback=None):
     split_mp3_into_chunks(path)
     chunk_path = Path("temp_chunks")
 
-    for audio_file in chunk_path.glob("*.mp3"):
-        resample_and_normalize(str(audio_file), str(audio_file), target_sample_rate=24000)
-        extract_features(audio_file)
-        extract_mfcc_and_melspec(audio_file)
+    temo = "/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/temp_chunks"
+    file_count = len([f for f in os.listdir(temo) if os.path.isfile(os.path.join(temo, f))])
+    print(f"Number of files: {file_count}")
 
-    #transcribe_lyrics(chunk_path)
+    audio_files = list(chunk_path.glob("*.mp3"))
+    total = len(audio_files)
+
+    if progress_callback:
+        progress_callback(10)
+
+    if fast:
+
+        for idx, audio_file in enumerate(audio_files):
+            resample_and_normalize(audio_file, audio_file, target_sample_rate=24000)
+            extract_mel_spectrogram(audio_file)
+            if progress_callback:
+                progress_callback(10 + int(80 * (idx + 1) / total))  # From 10% to 80%
+
+    else:
+
+        for idx, audio_file in enumerate(audio_files):
+            resample_and_normalize(audio_file, audio_file, target_sample_rate=24000)
+            extract_features(audio_file)
+            extract_mel_spectrogram(audio_file)
+            extract_mfcc(audio_file)
+            if progress_callback:
+                progress_callback(10 + int(70 * (idx + 1) / total))  # From 10% to 80%
+
+
+        transcribe_lyrics(chunk_path)
+        if progress_callback:
+            progress_callback(90)
+    
+    if progress_callback:
+        progress_callback(100)
+
 
