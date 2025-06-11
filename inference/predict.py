@@ -5,6 +5,7 @@ import torchvision.models as models
 from PIL import Image
 import torch.nn.functional as F
 import torch.nn as nn
+from transformers import DistilBertTokenizer, DistilBertConfig, DistilBertForSequenceClassification, get_scheduler
 
 def get_cnn_model(weight_path):
     # Load the pre-trained ResNet-18 model
@@ -25,7 +26,7 @@ def get_cnn_predictions(dir, model_path, weight, predictions):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
-    preds = predictions
+    preds = []
 
     model = get_cnn_model(model_path)
     model.eval()
@@ -40,9 +41,57 @@ def get_cnn_predictions(dir, model_path, weight, predictions):
         with torch.no_grad():
             output = model(image_tensor)
             prob = F.softmax(output, dim=1)  # Get probabilities
-            preds.append(prob.cpu() * weight)
+            preds.append(prob.cpu())
 
-    return preds
+    if preds:
+        model_avg = torch.mean(torch.cat(preds, dim=0), dim=0)  # shape: [num_classes]
+        predictions.append(model_avg * weight)  # Apply weight after averaging
+
+    return predictions
+
+def get_lyrics_model(weight_path):
+    config = DistilBertConfig.from_pretrained("distilbert-base-uncased", num_labels=2)
+    model = DistilBertForSequenceClassification(config)  
+    model.load_state_dict(torch.load(weight_path))
+    return model
+
+
+def get_lyrics_predictions(dir, model_path, weight, predictions):
+    preds = []
+
+    tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
+    model = get_lyrics_model(model_path)
+    model.eval()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
+    paths = list(dir.glob("*.txt")) 
+
+    for path in paths:
+        text = totext(path)
+
+        encoding = tokenizer.encode_plus(
+            text,
+            add_special_tokens=True,
+            padding='max_length',
+            truncation=True,
+            max_length=512,
+            return_tensors='pt',
+        )
+
+        input_ids = encoding['input_ids'].to(device)
+        attention_mask = encoding['attention_mask'].to(device)
+
+        with torch.no_grad():
+            output = model(input_ids=input_ids, attention_mask=attention_mask)
+            prob = F.softmax(output.logits, dim=1)  # Use .logits for HuggingFace models
+            preds.append(prob.cpu())
+
+    if preds:
+        model_avg = torch.mean(torch.cat(preds, dim=0), dim=0)  # shape: [num_classes]
+        predictions.append(model_avg * weight)  # Apply weight after averaging
+
+    return predictions
 
 class ConvTransformerClassifier(nn.Module):
     def __init__(self, n_classes, d_model=128, nhead=4, num_layers=2, input_shape=(1, 128, 256)):
@@ -119,7 +168,7 @@ def get_cnnt_model(weight_path):
 
 def get_cnnt_predictions(dir, model_path, weight, predictions):
     
-    preds = predictions
+    preds = []
 
     model = get_cnnt_model(model_path)
     model.eval()
@@ -134,9 +183,14 @@ def get_cnnt_predictions(dir, model_path, weight, predictions):
         with torch.no_grad():
             output = model(tensor)
             prob = F.softmax(output, dim=1)  # Get probabilities
-            preds.append(prob.cpu() * weight)
+            preds.append(prob.cpu())
 
-    return preds
+    if preds:
+        model_avg = torch.mean(torch.cat(preds, dim=0), dim=0)  # shape: [num_classes]
+        predictions.append(model_avg * weight)  # Apply weight after averaging
+
+    return predictions
+
 
 
 def predict(fast=False):
@@ -183,7 +237,12 @@ def predict(fast=False):
                 "weight": 0.20,
                 "fn": get_cnnt_predictions
             },
-            # Optional: lyrics model can be added here
+            "lyrics": {
+                "path": Path("/vol/bitbucket/sg2121/fyp/aimusicdetector/inference/features/temp_chunks"),
+                "model": "/vol/bitbucket/sg2121/fyp/aimusicdetector/lyric_detection/large/best_model_randomsearch.pt",
+                "weight": 0.10,
+                "fn": get_lyrics_predictions
+            }
         }
 
     # Run predictions
@@ -191,10 +250,11 @@ def predict(fast=False):
         if cfg["weight"] > 0:
             predictions = cfg["fn"](cfg["path"], cfg["model"], cfg["weight"], predictions)
 
-    # Average probabilities across all chunks
-    avg_prob = torch.mean(torch.cat(predictions, dim=0), dim=0)
-    predicted_label = torch.argmax(avg_prob).item()
-    confidence = avg_prob[predicted_label].item()
+    # Sum weighted averages from each model
+    final_prob = torch.stack(predictions).sum(dim=0)  # shape: [num_classes]
+    predicted_label = torch.argmax(final_prob).item()
+    confidence = final_prob[predicted_label].item()
+
 
     label_name = "AI-generated" if predicted_label == 0 else "Human-generated"
     print(f"\nPrediction: {label_name} (Confidence: {confidence:.2f})")
