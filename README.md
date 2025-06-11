@@ -1,2 +1,4 @@
 # aimusicdetector
 MEng Computing FYP Project for Imperial College London
+
+As AI-generated music (AIGM) becomes increasingly indistinguishable from human-created music, detection methods must advance to keep pace and maintain effectiveness. This project investigates which musical features most strongly indicate AI generation and evaluates various models for their effectiveness in identifying such content. A range of both physical and perceptual audio features were explored, and different model types such as CNNs, CNN-Transformer hybrids and multi-modal approaches were tested. The most effective classifier was an ensemble model combining multiple feature-based classifiers, achieving an accuracy of 98.46%. While promising, this model has not yet been evaluated on out-of-domain data. This work contributes to the growing field of AIGM detection by proving a comprehensive comparison of features and model architectures.
